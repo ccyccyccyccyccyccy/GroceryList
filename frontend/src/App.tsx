@@ -2,6 +2,8 @@ import { useState } from 'react';
 import Header from './components/Header';
 import SearchBar, { SearchFilters } from './components/SearchBar';
 import ProductGrid from './components/ProductGrid';
+import CompareView from './components/CompareView';
+import ViewToggle, { ViewMode } from './components/ViewToggle';
 import { Product } from './types/api';
 import { searchProducts } from './services/api';
 import { config } from './config/env';
@@ -11,6 +13,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const handleSearch = async (query: string, filters: SearchFilters) => {
     setLoading(true);
@@ -67,21 +70,34 @@ function App() {
         {/* Results Section */}
         <div className="mb-8">
           {searchQuery && !loading && (
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-900">
-                Search results for "{searchQuery}"
-              </h3>
-              <p className="text-gray-600 mt-1">
-                Found {products.length} product{products.length !== 1 ? 's' : ''}
-              </p>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  Search results for "{searchQuery}"
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  Found {products.length} product{products.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+              
+              {/* View Toggle */}
+              <ViewToggle viewMode={viewMode} onViewChange={setViewMode} />
             </div>
           )}
           
-          <ProductGrid 
-            products={products} 
-            loading={loading} 
-            searchQuery={searchQuery}
-          />
+          {/* View Content */}
+          {viewMode === 'list' ? (
+            <ProductGrid 
+              products={products} 
+              loading={loading} 
+              searchQuery={searchQuery}
+            />
+          ) : (
+            <CompareView 
+              products={products} 
+              searchQuery={searchQuery}
+            />
+          )}
         </div>
       </main>
 
